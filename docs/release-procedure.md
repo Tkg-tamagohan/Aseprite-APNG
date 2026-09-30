@@ -25,7 +25,7 @@ GitHub Releases へ拡張パッケージ（`.aseprite-extension`）を公開す�
    ```
 
    `dist/aseprite-apng-v<version>.aseprite-extension` が生成される。
-   `unzip -l` で `package.json`、`main.lua`、`apng.lua` の3ファイルがルートに並んでいることを確認する。
+   `unzip -l` で `package.json`、`main.lua`、`apng.lua`、`LICENSE` の4ファイルがルートに並んでいることを確認する。
 
 3. バージョンに対応するタグを打ってプッシュする。
 
@@ -57,4 +57,4 @@ Aseprite 連携の動作確認は Windows 実機での手動検証のみ可能�
 ## 補足
 
 `build.sh` は POSIX シェルと `zip` コマンドがあれば動く。
-Windows で手作業する場合は、`package.json`、`main.lua`、`apng.lua` を zip 化して拡張子を `.aseprite-extension` に変更すれば同等の成果物になる。
+Windows で手作業する場合は、`package.json`、`main.lua`、`apng.lua`、`LICENSE` を zip 化して拡張子を `.aseprite-extension` に変更すれば同等の成果物になる。

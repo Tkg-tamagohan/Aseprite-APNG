@@ -18,6 +18,7 @@ out="dist/${name}"
 rm -f "$out"
 
 # -j: ディレクトリ階層を捨ててルートに並べる。-X: 余計なファイル属性を付けない。
-zip -X -j "$out" package.json main.lua apng.lua
+# LICENSE は MIT の表示条件を配布物で満たすために同梱する。
+zip -X -j "$out" package.json main.lua apng.lua LICENSE
 
 echo "created: $out"
