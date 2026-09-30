@@ -89,6 +89,10 @@ check(err:find("CRC"), "parse_png: CRC error message")
 p2 = apng.parse_png(png_red:sub(1, #png_red - 10))
 eq(p2, nil, "parse_png: rejects truncated PNG")
 
+p2, err = apng.parse_png("\137PNG\r\n\026\n")
+eq(p2, nil, "parse_png: signature-only input returns error")
+check(err:find("IEND"), "parse_png: signature-only error message")
+
 -- assemble ---------------------------------------------------------
 local png_green = pnggen.rgba(4, 3, { 0, 255, 0, 255 })
 local png_blue = pnggen.rgba(4, 3, { 0, 0, 255, 255 })
@@ -167,6 +171,11 @@ check(e:find("IHDR"), "assemble: IHDR mismatch message")
 
 r = apng.assemble({ { png = "garbage" } })
 eq(r, nil, "assemble: rejects non-PNG frame")
+
+local png_idx_alt = pnggen.indexed(2, 2, { { 0, 0, 255 }, { 0, 255, 0 } }, 1)
+r, e = apng.assemble({ { png = png_idx }, { png = png_idx_alt } })
+eq(r, nil, "assemble: rejects palette mismatch")
+check(e and e:find("palette"), "assemble: palette mismatch message")
 
 r = apng.assemble("not a table")
 eq(r, nil, "assemble: rejects non-table input")

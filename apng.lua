@@ -72,7 +72,7 @@ function apng.parse_png(data)
     chunks[#chunks + 1] = { type = ctype, data = cdata }
     pos = pos + 12 + len
   end
-  if pos ~= #data + 1 or chunks[#chunks].type ~= "IEND" then
+  if pos ~= #data + 1 or #chunks == 0 or chunks[#chunks].type ~= "IEND" then
     return nil, "missing IEND chunk"
   end
   if not ihdr then
@@ -104,6 +104,25 @@ local function pack_fctl(seq, width, height, delay_num, delay_den)
     seq, width, height, 0, 0, delay_num, delay_den, 0, 0))
 end
 
+-- 色決定に関わる補助チャンク。APNG の fdAT フレームはデフォルト画像の
+-- パレット・色補正情報を引き継ぐため、フレーム間でこれらが異なる入力は拒否する。
+local COLOR_CHUNKS = {
+  PLTE = true, tRNS = true, hIST = true, sPLT = true,
+  gAMA = true, cHRM = true, sRGB = true, iCCP = true, sBIT = true,
+}
+
+local function color_signature(chunks)
+  local sig = {}
+  for _, c in ipairs(chunks) do
+    if c.type == "IDAT" then
+      break
+    elseif COLOR_CHUNKS[c.type] then
+      sig[#sig + 1] = c.type .. "\0" .. c.data
+    end
+  end
+  return table.concat(sig, "\0")
+end
+
 -- フレーム列から APNG バイナリを組み立てる。
 -- frames[i] = { png = <PNGバイト列>, duration = <秒> }
 -- 構成: シグネチャ, IHDR, acTL, (先頭PNGの事前IDAT補助チャンク),
@@ -116,7 +135,7 @@ function apng.assemble(frames)
   end
 
   local parsed = {}
-  local ihdr
+  local ihdr, color_sig
   for i = 1, #frames do
     local frame = frames[i]
     local png = type(frame) == "table" and frame.png or frame
@@ -126,8 +145,11 @@ function apng.assemble(frames)
     end
     if i == 1 then
       ihdr = p.ihdr
+      color_sig = color_signature(p.chunks)
     elseif p.ihdr ~= ihdr then
       return nil, string.format("frame %d: IHDR does not match the first frame", i)
+    elseif color_signature(p.chunks) ~= color_sig then
+      return nil, string.format("frame %d: palette chunks do not match the first frame", i)
     end
     parsed[i] = p
   end
