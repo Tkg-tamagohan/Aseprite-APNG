@@ -50,7 +50,7 @@ Aseprite-APNG/
 
 検証：`lua5.3 tests/test_main.lua` で Aseprite API をモック化し、onsave の一連の流れ（形式登録、フレーム合成・一時PNG、パレット選択、一時ファイル削除、エラー系）をスタンドアロンで検証。
 
-受け入れ条件：`.aseprite-extension` として梱包してインストールし、Save As → .apng で APNG が保存される。実機手動検証（Windows 上の Aseprite）は未実施。
+受け入れ条件：`.aseprite-extension` として梱包してインストールし、Save As → .apng で APNG が保存される。実機手動検証（Windows 上の Aseprite）は実施済みで合格。
 
 ### Phase 3：配布・ドキュメント
 
