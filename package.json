@@ -3,6 +3,7 @@
   "displayName": "Aseprite-APNG",
   "description": "スプライトをアニメーション PNG（APNG）として保存する拡張",
   "version": "0.1.0",
+  "license": "MIT",
   "author": {
     "name": "Tkg-tamagohan",
     "url": "https://github.com/Tkg-tamagohan/Aseprite-APNG"
