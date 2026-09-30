@@ -54,11 +54,13 @@ Aseprite-APNG/
 
 ### Phase 3：配布・ドキュメント
 
-- [ ] `.aseprite-extension` のビルド手順（zip 作成スクリプト or 手順書）
-- [ ] README（機能、導入方法、要求バージョン、既知の制約）
-- [ ] GitHub Releases への初版アップロード手順
+- [x] `.aseprite-extension` のビルド手順（`build.sh` で zip 生成、`docs/release-procedure.md` に手順書）
+- [x] README（機能、導入方法、要求バージョン、既知の制約）
+- [x] GitHub Releases への初版アップロード手順（`docs/release-procedure.md`）
 
-受け入れ条件：README 手順どおりにインストールして利用できる。
+検証：`sh build.sh` で `dist/aseprite-apng-v0.1.0.aseprite-extension` を生成し、`unzip -l` で `package.json`・`main.lua`・`apng.lua` の3ファイルがルートに並ぶことを確認済み。
+
+受け入れ条件：README 手順どおりにインストールして利用できる（実機での最終確認は初版リリース公開時に `docs/release-procedure.md` の検証節に従って実施する）。
 
 ## 引き継ぎ手順
 
