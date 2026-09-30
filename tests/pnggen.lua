@@ -55,15 +55,20 @@ end
 
 -- インデックスカラー（color type 3）の PNG を生成する。
 -- PLTE/tRNS を含むため補助チャンク引き継ぎのテストに使う。
-function pnggen.indexed(width, height, palette, index)
+-- transparent_index を渡すと tRNS でそのパレット番号だけを透明（alpha=0）にする。
+function pnggen.indexed(width, height, palette, index, transparent_index)
   local plte = {}
   for _, rgb in ipairs(palette) do
     plte[#plte + 1] = string.char(rgb[1], rgb[2], rgb[3])
   end
+  local trns = "\255"
+  if transparent_index then
+    trns = string.rep("\255", transparent_index) .. "\0"
+  end
   local row = "\0" .. string.char(index or 0):rep(width)
   return build(width, height, 8, 3, row:rep(height), {
     { type = "PLTE", data = table.concat(plte) },
-    { type = "tRNS", data = "\255" },
+    { type = "tRNS", data = trns },
   })
 end
 

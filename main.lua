@@ -40,15 +40,23 @@ end
 
 local function remove_temp(dir, files)
   for _, f in ipairs(files) do
-    pcall(os.remove, f)
+    local ok, removed = pcall(os.remove, f)
+    if not ok or not removed then
+      print("Aseprite-APNG: could not remove temp file " .. f)
+    end
   end
-  pcall(app.fs.removeDirectory, dir)
+  local ok, removed = pcall(app.fs.removeDirectory, dir)
+  if not ok or removed == false then
+    print("Aseprite-APNG: could not remove temp directory " .. dir)
+  end
 end
 
 -- フレームを全レイヤー合成のキャンバス全面画像として一時 PNG に書き出し、
 -- そのバイト列を返す。
 local function render_frame_png(sprite, frame_number, path)
-  local image = Image(sprite.width, sprite.height, sprite.colorMode)
+  -- sprite.spec を引き継ぐことでインデックス画像の透明色インデックスも
+  -- 新規 Image 側の spec.transparentColor と一致する（0 以外の透明色に対応）。
+  local image = Image(sprite.spec)
   image:drawSprite(sprite, frame_number)
   if sprite.colorMode == ColorMode.INDEXED then
     -- インデックス画像の保存には対応パレットの指定が必須

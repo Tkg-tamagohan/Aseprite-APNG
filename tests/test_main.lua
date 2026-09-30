@@ -29,6 +29,7 @@ local function reset_state()
     frame_colors = {},    -- フレーム番号 -> RGBA 色
     frame_sizes = {},     -- フレーム番号 -> {w, h}（異常系用）
     registered = {},      -- newFileFormat に渡された定義
+    image_specs = {},     -- Image() コンストラクタに渡された spec/引数
   }
 end
 
@@ -51,18 +52,29 @@ local function fake_sprite(opts)
   for i, d in ipairs(opts.durations or { 0.1 }) do
     frames[i] = { duration = d }
   end
+  local w = opts.width or 4
+  local h = opts.height or 3
+  local cm = opts.colorMode or ColorMode.RGB
   return {
-    width = opts.width or 4,
-    height = opts.height or 3,
-    colorMode = opts.colorMode or ColorMode.RGB,
+    width = w,
+    height = h,
+    colorMode = cm,
+    spec = { width = w, height = h, colorMode = cm,
+             transparentColor = opts.transparentColor or 0 },
     frames = frames,
     palettes = opts.palettes or {},
   }
 end
 
 -- Image モック: drawSprite でフレーム番号を記録し、saveAs で実際に PNG を書き出す
-Image = function(w, h, colorMode)
-  local img = { width = w, height = h, colorMode = colorMode, _frame = nil }
+Image = function(spec_or_w, h, colorMode)
+  local spec = spec_or_w
+  if type(spec_or_w) ~= "table" then
+    spec = { width = spec_or_w, height = h, colorMode = colorMode }
+  end
+  st.image_specs[#st.image_specs + 1] = spec
+  local img = { width = spec.width, height = spec.height,
+                colorMode = spec.colorMode, spec = spec, _frame = nil }
   function img:drawSprite(sprite, frame_number)
     assert(type(sprite) == "table" and sprite.frames ~= nil,
            "drawSprite: invalid sprite")
@@ -79,12 +91,12 @@ Image = function(w, h, colorMode)
     st.saved_paths[#st.saved_paths + 1] = fn
     st.save_palettes[#st.save_palettes + 1] = palette
     local size = st.frame_sizes[self._frame]
-    local pw, ph = w, h
+    local pw, ph = spec.width, spec.height
     if size then pw, ph = size[1], size[2] end
     local png
     if self.colorMode == ColorMode.INDEXED then
       assert(palette, "indexed saveAs requires palette")
-      png = pnggen.indexed(pw, ph, palette.plte, 1)
+      png = pnggen.indexed(pw, ph, palette.plte, 1, spec.transparentColor)
     else
       png = pnggen.rgba(pw, ph, st.frame_colors[self._frame])
     end
@@ -257,6 +269,21 @@ local ok, err, bin = run_onsave{ sprite = sprite }
 eq(ok, false, "MAIN-06: palette change rejected")
 check(err and err:find("palette"), "MAIN-06: palette mismatch message")
 eq(bin, "", "MAIN-06: nothing written on failure")
+
+-- MAIN-08: インデックススプライトの透明色インデックスが spec 経由で引き継がれる
+reset_state()
+init(fake_plugin())
+local plte4 = { { 255, 0, 0 }, { 0, 255, 0 }, { 0, 0, 255 }, { 9, 9, 9 } }
+sprite = fake_sprite{ colorMode = ColorMode.INDEXED,
+                      palettes = { fake_palette(1, plte4) },
+                      durations = { 0.1 },
+                      transparentColor = 3 }
+local ok, err, bin = run_onsave{ sprite = sprite }
+check(ok, "MAIN-08: save succeeds (" .. tostring(err) .. ")")
+eq(st.image_specs[1], sprite.spec, "MAIN-08: Image constructed from sprite.spec")
+local trns = chunk_at(assert(apng.parse_png(bin)), "tRNS")
+eq(trns and trns.data, string.rep("\255", 3) .. "\0",
+   "MAIN-08: tRNS marks index 3 as transparent")
 
 -- MAIN-07: ev.sprite が無い場合は app.sprite を使う --------------------------
 reset_state()
