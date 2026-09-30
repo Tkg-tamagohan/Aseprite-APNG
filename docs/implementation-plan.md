@@ -28,12 +28,14 @@ Aseprite-APNG/
 
 ### Phase 1：純Lua APNG 組立モジュール（`apng.lua`）＋ 単体テスト
 
-- [ ] PNG チャンクパーサ（シグネチャ・IHDR・IDAT 抽出）
-- [ ] CRC32 計算（string.pack ベース）
-- [ ] acTL/fcTL/fdAT 生成と APNG シリアライズ
-- [ ] フレーム時間変換（duration 秒 → delay_num/delay_den）
-- [ ] スタンドアロン Lua テスト：合成した連番PNG→APNG 変換、構造をバイナリレベルで検証
-- [ ] 生成 APNG の再生確認（ブラウザ表示）
+- [x] PNG チャンクパーサ（シグネチャ・IHDR・IDAT 抽出）
+- [x] CRC32 計算（string.pack ベース）
+- [x] acTL/fcTL/fdAT 生成と APNG シリアライズ
+- [x] フレーム時間変換（duration 秒 → delay_num/delay_den）
+- [x] スタンドアロン Lua テスト：合成した連番PNG→APNG 変換、構造をバイナリレベルで検証
+- [x] 生成 APNG の再生確認（ブラウザ表示）
+
+検証：`lua5.3 tests/test_apng.lua`（52件パス）。`lua5.3 tests/gen_demo.lua <出力>` で生成した APNG を Chrome で再生確認済み。
 
 受け入れ条件：複数フレーム・異なるフレーム時間の入力で正しい APNG が生成され、ブラウザでアニメーション再生される。
 
