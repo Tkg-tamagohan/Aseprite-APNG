@@ -41,8 +41,11 @@ GitHub Releases へ拡張パッケージ（`.aseprite-extension`）を公開す�
    gh release create v<version> \
      dist/aseprite-apng-v<version>.aseprite-extension \
      --title "v<version>" \
-     --notes "初版リリース"
+     --notes "リリース内容の要約"
    ```
+
+   `--notes` にはそのリリースの説明を書く。
+   初版なら「初版リリース」、更新版なら変更点の要約を書き換えて指定する。
 
    Web UI から作成する場合は、Releases ページで「Draft a new release」を開き、先ほどのタグを選んでタイトルと説明を記入し、生成した `.aseprite-extension` ファイルを Assets にドラッグして公開する。
 
