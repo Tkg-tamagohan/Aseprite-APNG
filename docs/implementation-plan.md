@@ -41,14 +41,16 @@ Aseprite-APNG/
 
 ### Phase 2：Aseprite 拡張エントリ（`main.lua`＋`package.json`）
 
-- [ ] `package.json` 作成（contributes.scripts）
-- [ ] `plugin:newFileFormat` で `apng` 拡張子登録（onsave のみ）
-- [ ] `onsave` 実装：全フレームを `Image:drawSprite` で全面合成 → `Image:saveAs` で一時PNG → `apng.lua` で組立 → ファイルハンドルへ書き込み
-- [ ] 一時ファイルの生成・削除（os.tmpname 系）
-- [ ] IHDR 不一致・単一フレーム・空スプライトなどのエラーハンドリング
-- [ ] `newFileFormat` を含む Aseprite 最小バージョンの確認と記載（仕様決定 H）
+- [x] `package.json` 作成（contributes.scripts）
+- [x] `plugin:newFileFormat` で `apng` 拡張子登録（onsave のみ）
+- [x] `onsave` 実装：全フレームを `Image:drawSprite` で全面合成 → `Image:saveAs` で一時PNG → `apng.lua` で組立 → `ev.file` へ書き込み
+- [x] 一時ファイルの生成・削除（`app.fs.tempPath` 配下の一意な一時ディレクトリ、`os.remove` で削除）
+- [x] IHDR 不一致・単一フレーム・空スプライトなどのエラーハンドリング
+- [x] `newFileFormat` を含む Aseprite 最小バージョンの確認と記載（仕様決定 H → v1.3.18 と確認済み）
 
-受け入れ条件：`.aseprite-extension` として梱包してインストールし、Save As → .apng で APNG が保存される。実機手動検証（Windows 上の Aseprite）。
+検証：`lua5.3 tests/test_main.lua` で Aseprite API をモック化し、onsave の一連の流れ（形式登録、フレーム合成・一時PNG、パレット選択、一時ファイル削除、エラー系）をスタンドアロンで検証。
+
+受け入れ条件：`.aseprite-extension` として梱包してインストールし、Save As → .apng で APNG が保存される。実機手動検証（Windows 上の Aseprite）は未実施。
 
 ### Phase 3：配布・ドキュメント
 
